@@ -2,18 +2,107 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
 import time
 
-from session import session
+from basics import basics
 
-class classicBW(session):
-    def __init__(self, num, SDL, nameSDL, nameUDL, attSDL, attUDL, VMnum):
-        if int(num) < 10:
-            self.name = "BW 0" + str(num)
+class businessWorkspace(basics):
+
+    # Multilingualizing the Workspace
+    def multilingualizeWorkspace(self):
+        # Going to the Categories Page
+        self.goTo("ll&objType=133&objAction=browse")
+
+        # Getting into the multilingual tab of the workspace
+        self.clickOn("xpath", "//a[@title='Function menu for BW WS']")
+        self.clickOn("xpath", "//*[contains(@id, 'menuItem_Properties')]")
+        self.clickOn("link_text", "Multilingual")
+
+        # Multilingualizing the workspace
+        Select(self.driver.find_element(By.ID, "editMLDestLang")).select_by_value("fr")
+        self.clickOn("id", "_1_1_2")
+        self.clickOn("id", "_1_1_3")
+        self.driver.find_element(By.NAME, "_1_1_2_Dest").send_keys("tf fr")
+        self.driver.find_element(By.NAME, "_1_1_4_Dest").send_keys("tml fr")
+        self.clickOn("xpath", "//input[@name='radTransType' and @value='1']")
+        self.driver.find_element(By.NAME, "_1_1_3_Dest_pp").clear()
+        self.driver.find_element(By.NAME, "_1_1_3_Dest_pp").send_keys("un" + Keys.RETURN + "deux" + Keys.RETURN + "trois")
+        self.clickOn("id", "btnSave")
+        return
+
+    # Creating a workspace in Classic View
+    def classicBW(self, num, SDL, nameSDL, nameUDL, attSDL, attUDL, VMnum):
+        # Starting in the correct language and then navigating to the BW folder
+        if SDL:
+            self.changeLang("en")
+            self.goTo()
+            self.clickOn("link_text", "Other Items")
         else:
-            self.name = "BW " + str (num)
-        self.SDL = SDL; self.sdlName = nameSDL; self.udlName = nameUDL; self.sdlAtts = attSDL;  self.udlAtts = attUDL
-        self.VMnum = super().VMnum
-        self.create()
-    
-    def create(self):
+            self.changeLang("fr")
+            self.goTo()
+            self.clickOn("link_text", "Autres éléments")
+        self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
+        self.clickOn("id", "addItemMenu0Head")
+        self.clickOn("id", "menuItem_848")
+
+        # Making the number a two-digit code (01-99) for easier sorting due to alphabetizing
+        if int(num) < 10:
+            name = "BW 0" + str(num)
+        else:
+            name = "BW " + str (num)
+
+        # Giving the workspace a name
+        self.clickOn("id", "nameGlobal")
+        if nameSDL:
+            self.driver.find_element(By.ID, "meta_name_en_US").send_keys(name + " EN")
+        if nameUDL:
+            self.driver.find_element(By.ID, "meta_name_fr").send_keys(name + " FR")
+
+        # Giving the workspace a description        
+        self.clickOn("link_text", "Description")
+        if nameSDL:
+            self.driver.find_element(By.ID, "meta_comment_en_US").send_keys(name + Keys.ENTER + "EN" + Keys.ENTER + "Description")
+        if nameUDL:
+            self.driver.find_element(By.ID, "meta_comment_FR").send_keys(name + Keys.ENTER + "FR" + Keys.ENTER + "Description")
+
+        # Giving the workspace Metadata
+        self.clickOn("link_text", "Next")
+
+        # Text Field
+        self.clickOn("id", "_1_1_2_1Global")
+        if attSDL:
+            self.driver.find_element(By.ID, "mle__1_1_2_1_en_US").send_keys("EN " + str(num))
+        if attUDL:
+            self.driver.find_element(By.ID, "mle__1_1_2_1_fr").send_keys("FR " + str(num))
+        self.clickOn("link_text", "OK")
+        
+        # Text Popup
+        Select(self.driver.find_element(By.ID, "_1_1_3_1")).select_by_index(3)
+
+        # Text Multiline
+        self.driver.find_element(By.ID, "_1_1_4_1").send_keys("TML" + Keys.ENTER + "Not multilingual")
+
+        # Moving on (every 2nd run ends "early")
+        if int(num)%2==1:
+            self.clickOn("link_text", "Next")
+        self.clickOn("link_text", "Finish")
+
+        # Examining the results
+
+        # BWs 7-10 are expected to error out
+        if SDL==False and attUDL==False:
+            self.waitFor("partial_link_text", "wizard")
+            print("BW", num, "passed with the expected result of an error")
+            return
+
+        # Ensuring proper values are displayed
+        self.clickOn("link_text", "Continue")
+        self.waitFor("class", "xecmTitleBar")
+        self.changeLang("en")
+
+        # Checking the name
+        if nameSDL:
+            
+
