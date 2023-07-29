@@ -5,13 +5,12 @@ import time
 VMnum = input("Which VM are you running?\n")
 thisSession = businessWorkspace(VMnum)
 
+# Num, SDL, NameSDL, NameUDL, AttSDL, AttUDL, Pause
+thisSession.classicBW(1, False, True, True, False, True, True)
+thisSession.classicBW(2, False, True, True, False, True, False)
 
 
-#thisSession.changeLang("fr")
-#thisSession.getTitle()
-#thisSession.changeLang("en")
-thisSession.multilingualizeWorkspace()
-#thisSession.createBW(1, False, 1, 1, 1, 1, 1)
+
 
 thisSession.quit()
 del thisSession

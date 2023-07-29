@@ -33,7 +33,7 @@ class businessWorkspace(basics):
         return
 
     # Creating a workspace in Classic View
-    def classicBW(self, num, SDL, nameSDL, nameUDL, attSDL, attUDL, VMnum):
+    def classicBW(self, num, SDL, nameSDL, nameUDL, attSDL, attUDL, pause):
         # Starting in the correct language and then navigating to the BW folder
         if SDL:
             self.changeLang("en")
@@ -56,6 +56,7 @@ class businessWorkspace(basics):
         # Giving the workspace a name
         self.clickOn("id", "nameGlobal")
         if nameSDL:
+            self.driver.find_element(By.ID, "meta_name_en_US").clear()
             self.driver.find_element(By.ID, "meta_name_en_US").send_keys(name + " EN")
         if nameUDL:
             self.driver.find_element(By.ID, "meta_name_fr").send_keys(name + " FR")
@@ -65,10 +66,11 @@ class businessWorkspace(basics):
         if nameSDL:
             self.driver.find_element(By.ID, "meta_comment_en_US").send_keys(name + Keys.ENTER + "EN" + Keys.ENTER + "Description")
         if nameUDL:
-            self.driver.find_element(By.ID, "meta_comment_FR").send_keys(name + Keys.ENTER + "FR" + Keys.ENTER + "Description")
+            self.driver.find_element(By.ID, "meta_comment_fr").send_keys(name + Keys.ENTER + "FR" + Keys.ENTER + "Description")
+        self.clickOn("xpath", "//button[text()='OK']")
 
         # Giving the workspace Metadata
-        self.clickOn("link_text", "Next")
+        self.clickOn("xpath", "//*[@value='Next >>']")
 
         # Text Field
         self.clickOn("id", "_1_1_2_1Global")
@@ -76,7 +78,7 @@ class businessWorkspace(basics):
             self.driver.find_element(By.ID, "mle__1_1_2_1_en_US").send_keys("EN " + str(num))
         if attUDL:
             self.driver.find_element(By.ID, "mle__1_1_2_1_fr").send_keys("FR " + str(num))
-        self.clickOn("link_text", "OK")
+        self.clickOn("id", "mlEditBtnSave")
         
         # Text Popup
         Select(self.driver.find_element(By.ID, "_1_1_3_1")).select_by_index(3)
@@ -86,8 +88,8 @@ class businessWorkspace(basics):
 
         # Moving on (every 2nd run ends "early")
         if int(num)%2==1:
-            self.clickOn("link_text", "Next")
-        self.clickOn("link_text", "Finish")
+            self.clickOn("xpath", "//*[@value='Next >>']")
+        self.clickOn("id", "FinishButton")
 
         # Examining the results
 
@@ -98,11 +100,72 @@ class businessWorkspace(basics):
             return
 
         # Ensuring proper values are displayed
-        self.clickOn("link_text", "Continue")
-        self.waitFor("class", "xecmTitleBar")
+        self.clickOn("xpath", "//*[@value='Continue']")
+        time.sleep(1)
         self.changeLang("en")
 
         # Checking the name
+        val = self.getText("id", "otsapwkspPanel_panelTitle")
         if nameSDL:
-            
+            if val != (name + " EN"): 
+                self.error("BW Name", "SDL", (name + " EN"), val)
+        else:
+            if val != (name + " FR"):
+                self.error("BW Name", "SDL", (name + " FR"), val)
+        
+        # Checking the Text Field
+        val = self.driver.find_element(By.XPATH, "(//li[@class='xecmsap_attribute_value'])[0]").text[6:-6]
+        #self.getText("xpath", f"//li[@class='xecmsap_attribute_value' and (@title='EN {str(num)}')]")
+        if attSDL:
+            if val != ("EN " + str(num)):
+                self.error("Text Field", "SDL", ("EN " + str(num)), val)
+        else:
+            if val != ("FR " + str(num)):
+                self.error("Text Field", "SDL", ("FR " + str(num)), val)
 
+        # Checking the Text Popup
+        val = self.driver.find_element(By.XPATH, "(//li[@class='xecmsap_attribute_value'])[1]").text[6:-6]
+        if val != "three":
+            self.error("Text Popup", "SDL", "three", val)
+        
+        # Checking the Text Multiline
+        val = self.driver.find_element(By.XPATH, "(//li[@class='xecmsap_attribute_value'])[2]").text[6:-6]
+        if val != "TML Not multilingual":
+            self.error("Text Multiline", "SDL", "TML Not multilingual", val)
+        
+        # Checking in UDL
+        
+        # Checking the name
+        val = self.getText("class_name", "xecmTitleBar")
+        if nameUDL:
+            if val != (name + " FR"):
+                self.error("BW Name", "UDL", (name + " FR"), val)
+        else:
+            if val != (name + " EN"):
+                self.error("BW Name", "UDL", (name + " EN"), val)
+        
+        # Checking the Text Field
+        # Text Field does not appear in UDL if no UDL value is provided, so additional measures must be taken to insure the proper field is being checked.
+        check = 0
+        if attUDL:
+            val = self.driver.find_element(By.XPATH, f"(//li[@class='xecmsap_attribute_value'])[{check}]").text[6:-6]
+            if val != ("FR " + str(num)):
+                self.error("Text Field", "UDL", ("FR " + str(num)), val)
+                check += 1
+
+        # Checking the Text Popup
+        val = self.driver.find_element(By.XPATH, f"(//li[@class='xecmsap_attribute_value'])[{check}]").text[6:-6]
+        check += 1
+        if val != "trois":
+            self.error("Text Popup", "UDL", "trois", val)
+        
+        # Checking the Text Multiline
+        val = self.driver.find_element(By.XPATH, f"(//li[@class='xecmsap_attribute_value'])[{check}]").text[6:-6]
+        if val != "TML Not multiline":
+            self.error("Text Multiline", "UDL", "TML Not multilingual", val)
+
+        # Done with the workspace
+        print(f"{name} passed.")
+        if pause:
+            self.askCont()
+        return

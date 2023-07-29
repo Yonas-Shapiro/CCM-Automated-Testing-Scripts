@@ -22,11 +22,54 @@ class basics:
         self.driver.maximize_window()
         self.logIn()
     
+    # Destructor
     def __del__(self):
         print("This session has ended")
 
+    # Quit
     def quit(self):
         self.driver.quit()
+
+    # Checking if the user would like to continue the test
+    def askCont(self):
+        cont = ""
+        while True:
+            print("Would you like to continue? (y/n)")
+            cont = input().lower()
+            if cont == "y": return
+            if cont == "n": self.quit(); print("Ended session early.")
+
+
+    # Click on an element (Includes waiting for)
+    def clickOn(self, by, path):
+        by = by.upper()
+        self.waitFor(by, path)
+        self.driver.find_element(eval("By."+ by), path).click()
+        return
+    
+    def error(self, where, lang, expected, received):
+        print(f"ERROR!\n Unexpected result for {where} in {lang}.\n Expected '{expected}' but got '{received}'")
+        self.askCont()
+        return
+    
+    # Returning the text of a field
+    def getText(self, by, path):
+        by = by.upper()
+        self.waitFor(by, path)
+        return self.driver.find_element(eval("By."+by), path).text
+    
+    # Going to a page
+    def goTo(self, page="llworkspace"):
+        location = self.home.replace("llworkspace", page)
+        self.driver.get(location)
+        return
+    
+    # Reloading the page
+    def reload(self):
+        time.sleep(0.5)
+        self.driver.refresh()
+        time.sleep(0.5)
+        return
 
     # Wait for function
     def waitFor(self, by, element):
@@ -37,31 +80,10 @@ class basics:
             return
         except:
             print("There seems to have been an error.")
-            print("Looking for", by, "of", element)
+            print(f"Looking for {by} of {element}.")
             confirm = input("Press enter to continue\n")
-            if confirm != "": self.driver.close()
+            if confirm != "": self.driver.quit()
             return
-
-    # Click on an element (Includes waiting for)
-    def clickOn(self, by, path):
-        by = by.upper()
-        self.waitFor(by, path)
-        self.driver.find_element(eval("By."+ by), path).click()
-        return
-
-    
-    # Reloading the page
-    def reload(self):
-        time.sleep(0.5)
-        self.driver.refresh()
-        time.sleep(0.5)
-        return
-
-    # Going to a page
-    def goTo(self, page="llworkspace"):
-        location = self.home.replace("llworkspace", page)
-        self.driver.get(location)
-        return
     
     # Logging in
     def logIn(self):
@@ -72,9 +94,6 @@ class basics:
         #self.clickOn("ID", "loginbutton")
         print("Logged in")
         return
-
-    def getTitle(self):
-        print(self.driver.title)
 
     # Changing the language
     def changeLang (self, lang):
@@ -89,33 +108,9 @@ class basics:
         self.driver.back()
         self.reload()
         time.sleep(1)
-        print("Changed language to", lang)
+        print("Changed language to", lang.upper())
         return
-
-
-
-
-
-    # Getting the id from text (OBSELETE?)
-    def getIDFromText(self, text):
-        print(text)
-        id = self.driver.find_element(By.LINK_TEXT, text)
-        return id.get_attribute("id")
-
-    # Creating a Workspace
-    def createBW(self, num, SDL, nameSDL, nameUDL, attSDL, attUDL, VMnum):
-        if SDL:
-            self.changeLang("en")
-            self.goTo()
-            self.clickOn("LINK_TEXT", "Other Items")
-        else:
-            self.changeLang("fr")
-            self.goTo()
-            self.clickOn("LINK_TEXT", "Autres éléments")
-        self.clickOn("XPATH", "//a[@class='browseItemNameContainer' and contains(@id, 'node')]")
-        self.clickOn("ID", "addItemMenu0Head")
-        self.clickOn("ID", "menuItem_848")
-        
-        time.sleep(10)
-
-        #bw = classicBW(num, SDL, nameSDL, nameUDL, attSDL, attUDL, VMnum)
+    
+    # Returning the title of the page
+    def getTitle(self):
+        print(self.driver.title)
