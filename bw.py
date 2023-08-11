@@ -33,9 +33,9 @@ class businessWorkspace(basics):
         return
 
     # Creating a workspace in Classic View
-    def classicBW(self, num, SDL, nameSDL, nameUDL, attSDL, attUDL, pause):
+    def classicBW(self, num, inSDL, nameSDL, nameUDL, attSDL, attUDL, pause):
         # Starting in the correct language and then navigating to the BW folder
-        if SDL:
+        if inSDL:
             self.changeLang("en")
             self.goTo()
             self.clickOn("link_text", "Other Items")
@@ -94,7 +94,7 @@ class businessWorkspace(basics):
         # Examining the results
 
         # BWs 7-10 are expected to error out
-        if SDL==False and attUDL==False:
+        if inSDL==False and attUDL==False:
             self.waitFor("link_text", "Quit Wizard")
             print("BW", num, "passed with the expected result of an error")
             return
@@ -170,3 +170,20 @@ class businessWorkspace(basics):
         if pause:
             self.askCont()
         return
+    
+
+    # Creating a Business Workspace in Smart View
+    def smartBW(self, num, inSDL, nameSDL, nameUDL, pause):
+
+        # Starting in the right language
+        if inSDL: self.changeLang("en")
+        else: self.changeLang("fr")
+
+        # Navigating to the folder
+        if self.SDL: self.clickOn("xpath", "//a[@title='Other Items']")
+        else: self.clickOn("xpath", "//a[@title='Autres éléments]")
+        self.clickOn("xpath", "//a[@title='Business Workspaces']")
+
+        # Creating the Workspace
+        self.clickOn("xpath", "(//circle[@class='csui-icon-v2-state'])[2]")
+        self.clickOn("link_text", "BW WS Template")
