@@ -73,6 +73,7 @@ class basics:
 
     # Wait for function
     def waitFor(self, by, element):
+        by = by.upper()
         try:
             wait = WebDriverWait(self.driver, 20).until(
                 EC.presence_of_element_located((eval("By." + by), element))
