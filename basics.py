@@ -17,6 +17,7 @@ class basics:
         self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
         #self.driver = webdriver.Chrome("C:\Program Files (x86)\chromedriver.exe")
         self.home = "http://192.168.2." + str(VMnum) + "/otcs/cs.exe?func=llworkspace"
+        self.smartHome = "http://192.168.2." + str(VMnum) + "/otcs/cs.exe/app/nodes/2000"
         self.driver.get(self.home)
         self.driver.set_window_position(-1000, 0)
         self.driver.maximize_window()
@@ -98,8 +99,8 @@ class basics:
 
     # Changing the language
     def changeLang (self, lang):
-        if lang.lower() == "en": lang = "en_US"
-        else: lang = lang.lower()
+        if lang.lower() == "en": lang = "en_US"; self.SDL = True
+        else: lang = lang.lower(); self.SDL = False
         self.goTo("personal.settings")
         self.waitFor("ID", "metadataLang")
         Select(self.driver.find_element(By.ID, "metadataLang")).select_by_value(lang)
