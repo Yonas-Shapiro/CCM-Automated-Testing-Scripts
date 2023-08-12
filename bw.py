@@ -34,6 +34,9 @@ class businessWorkspace(basics):
 
     # Creating a workspace in Classic View
     def classicBW(self, num, inSDL, nameSDL, nameUDL, attSDL, attUDL, pause):
+        # Ensuring num is a string
+        num = str(num)
+
         # Starting in the correct language and then navigating to the BW folder
         if inSDL:
             self.changeLang("en")
@@ -49,9 +52,9 @@ class businessWorkspace(basics):
 
         # Making the number a two-digit code (01-99) for easier sorting due to alphabetizing
         if int(num) < 10:
-            name = "BW 0" + str(num)
+            name = "BW 0" + num
         else:
-            name = "BW " + str (num)
+            name = "BW " + num
 
         # Giving the workspace a name
         self.clickOn("id", "nameGlobal")
@@ -75,9 +78,9 @@ class businessWorkspace(basics):
         # Text Field
         self.clickOn("id", "_1_1_2_1Global")
         if attSDL:
-            self.driver.find_element(By.ID, "mle__1_1_2_1_en_US").send_keys("EN " + str(num))
+            self.driver.find_element(By.ID, "mle__1_1_2_1_en_US").send_keys("EN " + num)
         if attUDL:
-            self.driver.find_element(By.ID, "mle__1_1_2_1_fr").send_keys("FR " + str(num))
+            self.driver.find_element(By.ID, "mle__1_1_2_1_fr").send_keys("FR " + num)
         self.clickOn("id", "mlEditBtnSave")
         
         # Text Popup
@@ -114,22 +117,22 @@ class businessWorkspace(basics):
                 self.error("BW Name", "SDL", (name + " FR"), val)
         
         # Checking the Text Field
-        val = self.driver.find_element(By.XPATH, "(//div[@class='xecmsap_attribute_value'])[1]").text[2:-1]
-        #self.getText("xpath", f"//li[@class='xecmsap_attribute_value' and (@title='EN {str(num)}')]")
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[1]")[2:-1]
+        #self.getText("xpath", f"//li[@class='xecmsap_attribute_value' and (@title='EN {num}')]")
         if attSDL:
-            if val != ("EN " + str(num)):
-                self.error("Text Field", "SDL", ("EN " + str(num)), val)
+            if val != ("EN " + num):
+                self.error("Text Field", "SDL", ("EN " + num), val)
         else:
-            if val != ("FR " + str(num)):
-                self.error("Text Field", "SDL", ("FR " + str(num)), val)
+            if val != ("FR " + num):
+                self.error("Text Field", "SDL", ("FR " + num), val)
 
         # Checking the Text Popup
-        val = self.driver.find_element(By.XPATH, "(//div[@class='xecmsap_attribute_value'])[2]").text[2:-1]
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[2]")[2:-1]
         if val != "three":
             self.error("Text Popup", "SDL", "three", val)
         
         # Checking the Text Multiline
-        val = self.driver.find_element(By.XPATH, "(//div[@class='xecmsap_attribute_value'])[3]").text[2:-1]
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[3]")[2:-1]
         if val != "TML Not multilingual":
             self.error("Text Multiline", "SDL", "TML Not multilingual", val)
         
@@ -149,19 +152,19 @@ class businessWorkspace(basics):
         # Text Field does not appear in UDL if no UDL value is provided, so additional measures must be taken to insure the proper field is being checked.
         check = 1
         if attUDL:
-            val = self.driver.find_element(By.XPATH, f"(//div[@class='xecmsap_attribute_value'])[{check}]").text[2:-1]
-            if val != ("FR " + str(num)):
-                self.error("Text Field", "UDL", ("FR " + str(num)), val)
+            val = self.getText("xpath", f"(//div[@class='xecmsap_attribute_value'])[{check}]")[2:-1]
+            if val != ("FR " + num):
+                self.error("Text Field", "UDL", ("FR " + num), val)
             check += 1
 
         # Checking the Text Popup
-        val = self.driver.find_element(By.XPATH, f"(//div[@class='xecmsap_attribute_value'])[{check}]").text[2:-1]
+        val = self.getText("xpath", f"(//div[@class='xecmsap_attribute_value'])[{check}]")[2:-1]
         check += 1
         if val != "trois":
             self.error("Text Popup", "UDL", "trois", val)
         
         # Checking the Text Multiline
-        val = self.driver.find_element(By.XPATH, f"(//div[@class='xecmsap_attribute_value'])[{check}]").text[2:-1]
+        val = self.getText("xpath", f"(//div[@class='xecmsap_attribute_value'])[{check}]")[2:-1]
         if val != "TML Not multilingual":
             self.error("Text Multiline", "UDL", "TML Not multilingual", val)
 
@@ -174,6 +177,8 @@ class businessWorkspace(basics):
 
     # Creating a Business Workspace in Smart View
     def smartBW(self, num, inSDL, nameSDL, nameUDL, pause):
+        # Ensuring num is a string
+        num = str(num)
 
         # Starting in the right language
         if inSDL: self.changeLang("en")
@@ -187,3 +192,58 @@ class businessWorkspace(basics):
         # Creating the Workspace
         self.clickOn("xpath", "(//circle[@class='csui-icon-v2-state'])[2]")
         self.clickOn("link_text", "BW WS Template")
+
+
+        # Filling in the information
+
+        # Name
+        self.clickOn("xpath", "//path[@d includes 'M12']")
+        if nameSDL: self.driver.find_element(By.ID, "input-en_US").send_keys(f"BW {num} EN")
+        if nameUDL: self.driver.find_element(By.ID, "input-fr").send_keys(f"BW {num} FR")
+        self.clickOn("xpath", "//path[@id includes 'M12']")
+
+        # Description
+        self.driver.find_element(By.ID, "alpaca5").send_keys(Keys.TAB + Keys.ENTER)
+        if nameSDL: self.driver.find_element(By.ID, "input-en_US").send_keys(f"BW {num}" + Keys.ENTER + "EN" + Keys.ENTER + "Description")
+        if nameUDL: self.driver.find_element(By.ID, "input-fr").send_keys(f"BW {num}" + Keys.ENTER + "FR" + Keys.ENTER + "Description")
+        self.clickOn("xpath", "//path[@id includes 'M12']")
+
+        # Attributes
+        self.driver.find_element(By.ID, "alpaca6").send_keys(f"BW {num} {self.SDL}")
+        self.clickOn("id", "alpaca8")
+        self.driver.find_element(By.ID, "alpaca8").send_keys(Keys.DOWN + Keys.DOWN + Keys.DOWN + Keys.ENTER)
+        self.driver.find_element(By.ID, "alpaca10").send_keys("TML" + Keys.DOWN + "Not multilingual")
+
+        # Saving the Workspace
+        self.clickOn("id", "okButton")
+
+        # Opening the Properties Tab
+        if (inSDL and nameSDL) or (not inSDL and not nameUDL):
+            self.clickOn("xpath", f"//span[text()='BW {num} EN]")
+        else:
+            self.clickOn("xpath", f"//span[text()='BW {num} FR]")
+        self.clickOn("id", "dropdownMenuButton51087")
+        self.clickOn("link_text", "Properties")
+
+        # Examining the Results
+
+        # SDL First
+        self.changeLang('en')
+        
+        # Name
+        val = self.getText("xpath", "(//span[@title contains 'click to edit'])[1]")
+        if nameSDL:
+            if val != f"BW {num} EN":
+                self.error("SDL", f"BW {num} EN", val)
+        
+        # Text Field
+        val = self.getText("xpath", "(//div[@class = 'btn-container'])[11]")
+        if inSDL:
+            if val != f"EN {num}":
+                self.error("SDL", f"EN {num}", val)
+        else:
+            if val != f"FR {num}":
+                self.error("SDL", f"FR {num}", val)
+        
+        # Text Pop-up
+        val = self.getText("xpath", "(//span[@title includes])")

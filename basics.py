@@ -99,8 +99,8 @@ class basics:
 
     # Changing the language
     def changeLang (self, lang):
-        if lang.lower() == "en": lang = "en_US"; self.SDL = True
-        else: lang = lang.lower(); self.SDL = False
+        if lang.lower() == "en": lang = "en_US"; self.SDL = "EN"
+        else: lang = lang.lower(); self.SDL = "FR"
         self.goTo("personal.settings")
         self.waitFor("ID", "metadataLang")
         Select(self.driver.find_element(By.ID, "metadataLang")).select_by_value(lang)
