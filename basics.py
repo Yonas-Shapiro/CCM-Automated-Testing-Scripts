@@ -44,7 +44,7 @@ class basics:
     # Click on an element (Includes waiting for)
     def clickOn(self, by, path):
         by = by.upper()
-        self.waitFor(by, path)
+        self.waitFor(by, path, True)
         self.driver.find_element(eval("By."+ by), path).click()
         return
     
@@ -52,6 +52,12 @@ class basics:
         print(f"ERROR!\n Unexpected result for {where} in {lang}.\n Expected '{expected}' but got '{received}'")
         self.askCont()
         return
+    
+    # Getting an Attribute of an Element
+    def getAtt(self, by, path, att):
+        by = by.upper()
+        self.waitFor(by, path)
+        return self.driver.find_element(eval(f"By.{by}"), path).get_attribute(att)
     
     # Returning the text of a field
     def getText(self, by, path):
@@ -73,8 +79,20 @@ class basics:
         return
 
     # Wait for function
-    def waitFor(self, by, element):
+    def waitFor(self, by, element, clickable=False):
         by = by.upper()
+        if clickable:
+            try:
+                wait = WebDriverWait(self.driver, 20).until(
+                    EC.element_to_be_clickable((eval("By." + by), element))
+                )
+                return
+            except:
+                print("There seems to have been an error.")
+                print(f"Looking for {by} of {element}.")
+                confirm = input("Press enter to continue\n")
+                if confirm != "": self.driver.quit()
+                return
         try:
             wait = WebDriverWait(self.driver, 20).until(
                 EC.presence_of_element_located((eval("By." + by), element))

@@ -175,6 +175,7 @@ class businessWorkspace(basics):
         return
     
 
+
     # Creating a Business Workspace in Smart View
     def smartBW(self, num, inSDL, nameSDL, nameUDL, pause):
         # Ensuring num is a string
@@ -186,44 +187,48 @@ class businessWorkspace(basics):
 
         # Navigating to the folder
         self.driver.get(self.smartHome)
-        if self.SDL: self.clickOn("xpath", "//a[@title='Other Items']"); self.clickOn("xpath", "(//span[@title='Folder'])[2]")
-        else: self.clickOn("xpath", "//a[@title='Autres éléments']"); self.clickOn("xpath", "(//span[@title='Dossier'])[2]")
-        #self.clickOn("xpath", "(//polygon[@fill='#DD8100'])[2]")
+        if self.SDL:
+            self.driver.get(self.getAtt("xpath", "//a[@title='Other Items']", "href"))
+            self.driver.get(self.getAtt("xpath", "//a[@title='Business Workspaces']", "href"))
+        else:
+            self.driver.get(self.getAtt("xpath", "//a[@title='Autres éléments']", "href"))
+            self.driver.get(self.getAtt("xpath", "//a[@title='Business Workspaces']", "href"))
 
         # Creating the Workspace
-        self.clickOn("xpath", "(//circle[@class='csui-icon-v2-state'])[2]")
+        self.clickOn("xpath", "//a[@title='Add item']")
         self.clickOn("link_text", "BW WS Template")
 
 
         # Filling in the information
 
         # Name
-        self.clickOn("xpath", "//path[@d includes 'M12']")
+        self.clickOn("xpath", "(//button[@title='Edit in multiple languages'])[1]")
         if nameSDL: self.driver.find_element(By.ID, "input-en_US").send_keys(f"BW {num} EN")
         if nameUDL: self.driver.find_element(By.ID, "input-fr").send_keys(f"BW {num} FR")
-        self.clickOn("xpath", "//path[@id includes 'M12']")
+        self.clickOn("class_name", "globe-icon-mask")
 
         # Description
         self.driver.find_element(By.ID, "alpaca5").send_keys(Keys.TAB + Keys.ENTER)
         if nameSDL: self.driver.find_element(By.ID, "input-en_US").send_keys(f"BW {num}" + Keys.ENTER + "EN" + Keys.ENTER + "Description")
         if nameUDL: self.driver.find_element(By.ID, "input-fr").send_keys(f"BW {num}" + Keys.ENTER + "FR" + Keys.ENTER + "Description")
-        self.clickOn("xpath", "//path[@id includes 'M12']")
+        self.clickOn("class_name", "globe-icon-mask")
 
         # Attributes
-        self.driver.find_element(By.ID, "alpaca6").send_keys(f"BW {num} {self.SDL}")
+        if self.SDL: self.driver.find_element(By.ID, "alpaca6").send_keys(f"EN {num}")
+        else: self.driver.find_element(By.ID, "alpaca6").send_keys(f"FR {num}")
         self.clickOn("id", "alpaca8")
         self.driver.find_element(By.ID, "alpaca8").send_keys(Keys.DOWN + Keys.DOWN + Keys.DOWN + Keys.ENTER)
-        self.driver.find_element(By.ID, "alpaca10").send_keys("TML" + Keys.DOWN + "Not multilingual")
+        self.driver.find_element(By.ID, "alpaca10").send_keys("TML" + Keys.ENTER + "Not multilingual")
 
         # Saving the Workspace
         self.clickOn("id", "okButton")
 
         # Opening the Properties Tab
         if (inSDL and nameSDL) or (not inSDL and not nameUDL):
-            self.clickOn("xpath", f"//span[text()='BW {num} EN]")
+            self.driver.get(self.getAtt("xpath", f"//a[@title='BW {num} EN']", "href"))
         else:
-            self.clickOn("xpath", f"//span[text()='BW {num} FR]")
-        self.clickOn("id", "dropdownMenuButton51087")
+            self.driver.get(self.getAtt("xpath", f"//a[@title='BW {num} FR']", "href"))
+        self.clickOn("xpath", "//span[@title='Show more']")
         self.clickOn("link_text", "Properties")
 
         # Examining the Results
@@ -231,64 +236,65 @@ class businessWorkspace(basics):
         # SDL First
         self.changeLang('en')
         
+        time.sleep(5)
         # Name
-        val = self.getText("xpath", "(//span[@title contains 'click to edit'])[1]")
+        val = self.getText("xpath", "(//span[contains(@title, 'click to edit')])[1]")
         if nameSDL:
             if val != f"BW {num} EN":
-                self.error("SDL", f"BW {num} EN", val)
+                self.error("Name", "SDL", f"BW {num} EN", val)
         else:
             if val != f"BW {num} FR":
-                self.error("SDL", f"BW {num} FR", val)
+                self.error("Name", "SDL", f"BW {num} FR", val)
         
         # Text Field
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[11]")
         if inSDL:
             if val != f"EN {num}":
-                self.error("SDL", f"EN {num}", val)
+                self.error("Text Field", "SDL", f"EN {num}", val)
         else:
             if val != f"FR {num}":
-                self.error("SDL", f"FR {num}", val)
+                self.error("Text Field", "SDL", f"FR {num}", val)
         
         # Text Pop-up
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[12]")
         if val != "three":
-            self.error("SDL", "three", val)
+            self.error("Text Pop-up", "SDL", "three", val)
 
         # Text Multiline
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[13]")
         if val != "TML\nNot multilingual":
-            self.error("SDL", "TML\nNot multilingual", val)
+            self.error("Text Multiline", "SDL", "TML\nNot multilingual", val)
 
         # UDL Next
         self.changeLang("fr")
 
         # Name
-        val = self.getText("xpath", "(//span[@title contains 'click to edit'])[1]")
+        val = self.getText("xpath", "(//span[contains(@title, 'click to edit')])[1]")
         if nameUDL:
             if val != f"BW {num} FR":
-                self.error("UDL", f"BW {num} FR", val)
+                self.error("Name", "UDL", f"BW {num} FR", val)
         else:
             if val != f"BW {num} EN":
-                self.error("UDL", f"BW {num} EN", val)
+                self.error("Name", "UDL", f"BW {num} EN", val)
         
         # Text Field
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[11]")
         if inSDL:
             if val != f"EN {num}":
-                self.error("UDL", f"EN {num}", val)
+                self.error("Text Field", "UDL", f"EN {num}", val)
         else:
             if val != f"FR {num}":
-                self.error("UDL", f"FR {num}", val)
+                self.error("Text Field", "UDL", f"FR {num}", val)
         
         # Text Pop-up
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[12]")
         if val != "trois":
-            self.error("UDL", "three", val)
+            self.error("Text Popup", "UDL", "three", val)
 
         # Text Multiline
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[13]")
         if val != "TML\nNot multilingual":
-            self.error("UDL", "TML\nNot multilingual", val)
+            self.error("Text Multiline", "UDL", "TML\nNot multilingual", val)
 
         # Done with the Workspace
         print(f"BW {num} passed.")
