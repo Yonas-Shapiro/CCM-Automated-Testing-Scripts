@@ -389,8 +389,8 @@ class businessWorkspace(basics):
         self.driver.get(self.smartHome)
         self.driver.get(self.getAtt("link_text", searchName, "href"))
 
-        self.waitFor("xpath", "//a[@class='csui-search-item-link']")
-        tempValsFRSV = self.driver.find_elements(By.XPATH, "//a[@class='csui-search-item-link']")
+        self.waitFor("xpath", "//div[@class='csui-search-item-name ']")
+        tempValsFRSV = self.driver.find_elements(By.XPATH, "//div[@class='csui-search-item-name ']")
         valsFRSV = []
         for val in tempValsFRSV: valsFRSV.append(val.text)
 
@@ -402,8 +402,8 @@ class businessWorkspace(basics):
         self.driver.get(self.smartHome)
         self.driver.get(self.getAtt("link_text", searchName, "href"))
 
-        self.waitFor("xpath", "//a[@class='csui-search-item-link']")
-        tempValsSV = self.driver.find_elements(By.XPATH, "//a[@class='csui-search-item-link']")
+        self.waitFor("xpath", "//div[@class='csui-search-item-name ']")
+        tempValsSV = self.driver.find_elements(By.XPATH, "//div[@class='csui-search-item-name ']")
         valsSV = []
         for val in tempValsSV: valsSV.append(val.text)
 
