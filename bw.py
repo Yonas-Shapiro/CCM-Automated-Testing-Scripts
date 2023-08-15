@@ -1,9 +1,7 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
 import time
 
 from basics import basics
@@ -31,6 +29,66 @@ class businessWorkspace(basics):
         self.driver.find_element(By.NAME, "_1_1_3_Dest_pp").send_keys("un" + Keys.RETURN + "deux" + Keys.RETURN + "trois")
         self.clickOn("id", "btnSave")
         return
+    
+
+
+    # Setting the Workspace up for Creation in Workflows
+    def prepareForWorkflow(self):
+
+        # Going to SDL
+        if self.SDL == False: self.changeLang("en")
+
+        # Going to the Workspaces Page
+        self.goTo("ll&objType=862&objAction=browse")
+
+        # Getting into the Workspace Settings
+        self.clickOn("link_text", "Workspace Types")
+        self.clickOn("partial_link_text", "BW")
+
+        # Automatic Naming
+        self.driver.find_element(By.ID, "mlValue3").clear()
+        self.driver.find_element(By.ID, "mlValue3").send_keys("BW ")
+        self.driver.find_element(By.ID, "mlValue4").clear()
+        self.driver.find_element(By.ID, "mlValue4").send_keys("BW ")
+
+        # Inserting the Attributes to the Name
+
+        # SDL
+        self.clickOn("id", "insertAttr_mlLang3")
+        self.clickOn("xpath", "//div[text()='BW WS:tf']")
+        self.clickOn("id", "selectAttributeFormInsert")
+
+        # UDL
+        self.clickOn("id", "insertAttr_mlLang4")
+        self.clickOn("xpath", "//div[text()='BW WS:tf']")
+        self.clickOn("id", "selectAttributeFormInsert")
+
+        # Only Clicking on the Checkbox if it is not Already Selected
+        if not self.driver.find_element(By.ID, "doNameGenerationForEarlyWksp").is_selected():
+            self.clickOn("id", "doNameGenerationForEarlyWksp")
+
+        
+        # Automatic Location
+
+        # Getting the Location
+        Select(self.driver.find_element(By.ID, "cbName1")).select_by_value("StaticNodeId")
+
+        # If the Location is already there, skip
+        if not "Business Workspaces" in self.getText("id", "xecmctrl_StaticNodeId_1_text"):
+            self.clickOn("xpath", "//input[@name='xecmctrl_StaticNodeId_1_button']")
+            self.switchWindow(True)
+            self.clickOn("link_text", "Other Items")
+            self.clickOn("xpath", "(//a[@href='#'])[3]")
+            self.switchWindow(False)
+
+        # Checking the "Use also for manual creation" Checkbox
+        if not self.driver.find_element(By.ID, "useLocationForManualCreation").is_selected():
+            self.clickOn("id", "useLocationForManualCreation")
+
+        # Saving the Changes
+        self.clickOn("id", "FORM_SAVE")
+
+
 
     # Creating a workspace in Classic View
     def classicBW(self, num, inSDL, nameSDL, nameUDL, attSDL, attUDL, pause):
@@ -333,30 +391,21 @@ class businessWorkspace(basics):
         self.driver.find_element(By.ID, "name").send_keys(searchName)
 
         # Getting the Correct Location (Enterprise)
-        mainHandle = self.driver.current_window_handle
         if self.getText("id", "CTT_Path") != "Enterprise" or "Content Server:Enterprise":
             self.clickOn("xpath", "//input[@name='CTT_Button']")
-            for handle in self.driver.window_handles:
-                if handle != mainHandle:
-                    popup = handle
-            self.driver.switch_to.window(popup)
+            self.switchWindow(True)
             self.clickOn("class_name", "selectArrow")
             self.clickOn("xpath", "(//div[@class='menuItem'])[1]")
-            self.clickOn("xpath", "(//a[@href='#'])[4]")
-            self.driver.switch_to.window(mainHandle)
-            popup = False
+            self.clickOn("xpath", "(//a[@href='#'])[5]")
+            self.switchWindow(False)
 
         self.clickOn("id", "addButton")
         # Fixing a Potential Category "<not determined>"
         if len(self.driver.window_handles) > 1:
-            mainHandle = self.driver.current_window_handle
-            for handle in self.driver.window_handles:
-                if handle != mainHandle:
-                    self.driver.switch_to.window(handle)
-                    self.clickOn("xpath", "//input[@name='done']")
-                    self.driver.switch_to.window(mainHandle)
-                    self.clickOn("id", "addButton")
-
+            self.switchWindow(True)
+            self.clickOn("xpath", "//input[@name='done']")
+            self.switchWindow(False)
+            self.clickOn("id", "addButton")
 
 
         # Confirming values
