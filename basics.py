@@ -28,10 +28,6 @@ class basics:
     def __del__(self):
         print("This session has ended")
 
-    # Quit
-    def quit(self):
-        self.driver.quit()
-
     # Checking if the user would like to continue the test
     def askCont(self):
         cont = ""
@@ -39,7 +35,7 @@ class basics:
             print("Would you like to continue? (y/n)")
             cont = input().lower()
             if cont == "y": return
-            if cont == "n": self.quit(); print("Ended session early.")
+            if cont == "n": self.__del__()
 
     # Changing the language
     def changeLang (self, lang):
@@ -114,7 +110,7 @@ class basics:
         return
 
     # Wait for Function
-    def waitFor(self, by, element, clickable=False):
+    def waitFor(self, by, element, clickable=False, firstTime=True):
         by = by.upper()
         if clickable:
             try:
@@ -129,11 +125,14 @@ class basics:
                 if confirm != "": self.driver.quit()
                 return
         try:
-            wait = WebDriverWait(self.driver, 20).until(
+            wait = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((eval("By." + by), element))
             )
             return
         except:
+            if firstTime: 
+                self.reload
+                self.waitFor(by, element, False, False)
             print("There seems to have been an error.")
             print(f"Looking for {by} of {element}.")
             confirm = input("Press enter to continue\n")

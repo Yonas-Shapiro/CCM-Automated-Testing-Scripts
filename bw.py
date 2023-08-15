@@ -303,3 +303,116 @@ class businessWorkspace(basics):
             self.askCont()
         return
 
+
+
+
+    # Creating a Poll
+    def searchQuery(self, inSDL, searchTerm, pause):
+
+        # Starting in the Correct Language
+        if inSDL and not self.SDL: self.changeLang("en")
+        if not inSDL and self.SDL: self.changeLang("fr")
+
+        # Creating the Search
+        self.goTo("ll&objType=258&objAction=searchprompt")
+
+        # Entering the Information
+        self.driver.find_element(By.XPATH, "(//input[@class='valueEditable'])[1]").send_keys(searchTerm)
+        self.clickOn("id", "searchBtnMiddle")
+
+        # Getting the results
+        initResults = self.driver.find_elements(By.XPATH, "//span[contains(@id, 'searchResult')]")
+        results = []
+        for result in initResults:
+            results.append(result.text)
+
+        # Saving the Search Query
+        self.clickOn("id", "SearchFunctionMenuText_ahref")
+        self.clickOn("link_text", "Save Search Query")
+        searchName = f"{searchTerm} Search"
+        self.driver.find_element(By.ID, "name").send_keys(searchName)
+
+        # Getting the Correct Location (Enterprise)
+        mainHandle = self.driver.current_window_handle
+        if self.getText("id", "CTT_Path") != "Enterprise" or "Content Server:Enterprise":
+            self.clickOn("xpath", "//input[@name='CTT_Button']")
+            for handle in self.driver.window_handles:
+                if handle != mainHandle:
+                    popup = handle
+            self.driver.switch_to.window(popup)
+            self.clickOn("class_name", "selectArrow")
+            self.clickOn("xpath", "(//div[@class='menuItem'])[1]")
+            self.clickOn("xpath", "(//a[@href='#'])[4]")
+            self.driver.switch_to.window(mainHandle)
+            popup = False
+
+        self.clickOn("id", "addButton")
+        # Fixing a Potential Category "<not determined>"
+        if len(self.driver.window_handles) > 1:
+            mainHandle = self.driver.current_window_handle
+            for handle in self.driver.window_handles:
+                if handle != mainHandle:
+                    self.driver.switch_to.window(handle)
+                    self.clickOn("xpath", "//input[@name='done']")
+                    self.driver.switch_to.window(mainHandle)
+                    self.clickOn("id", "addButton")
+
+
+
+        # Confirming values
+
+        # SDL Classic View
+        if self.SDL == False: self.changeLang("en")
+        self.goTo()
+        self.clickOn("link_text", searchName)
+
+        tempVals = self.driver.find_elements(By.XPATH, "//span[contains(@id, 'searchResult')]")
+        vals = []
+        for val in tempVals: vals.append(val.text)
+
+        if vals != results:
+            self.error(searchName, "SDL", results, vals)
+        
+        # UDL Classic View
+        self.changeLang("fr")
+        self.goTo()
+        self.clickOn("link_text", searchName)
+
+        tempValsFR = self.driver.find_elements(By.XPATH, "//span[contains(@id, 'searchResult')]")
+        valsFR = []
+        for val in tempValsFR: valsFR.append(val.text)
+
+        if valsFR != results:
+            self.error(searchName, "UDL", results, valsFR)
+
+        # UDL Smart View
+        self.driver.get(self.smartHome)
+        self.driver.get(self.getAtt("link_text", searchName, "href"))
+
+        self.waitFor("xpath", "//a[@class='csui-search-item-link']")
+        tempValsFRSV = self.driver.find_elements(By.XPATH, "//a[@class='csui-search-item-link']")
+        valsFRSV = []
+        for val in tempValsFRSV: valsFRSV.append(val.text)
+
+        if valsFRSV != results:
+            self.error(searchName, "UDL", results, valsFRSV)
+        
+        # SDL Smart View
+        self.changeLang("en")
+        self.driver.get(self.smartHome)
+        self.driver.get(self.getAtt("link_text", searchName, "href"))
+
+        self.waitFor("xpath", "//a[@class='csui-search-item-link']")
+        tempValsSV = self.driver.find_elements(By.XPATH, "//a[@class='csui-search-item-link']")
+        valsSV = []
+        for val in tempValsSV: valsSV.append(val.text)
+
+        if valsSV != results:
+            self.error(searchName, "SDL", results, valsSV)
+        
+
+        # If Completed, Output Message
+        print(f"Search Query for {searchTerm} passed.")
+        if pause:
+            self.askCont()
+        return
