@@ -26,7 +26,9 @@ class basics:
     
     # Destructor
     def __del__(self):
+        self.driver.close()
         print("This session has ended")
+
 
     # Checking if the user would like to continue the test
     def askCont(self):
@@ -107,6 +109,16 @@ class basics:
         time.sleep(0.5)
         self.driver.refresh()
         time.sleep(0.5)
+        return
+    
+    # Switch Window Focus
+    def switchWindow(self, anchored):
+        if anchored: currentHandle = self.driver.current_window_handle
+        else: currentHandle = False
+        for handle in self.driver.window_handles:
+            if handle != currentHandle:
+                self.driver.switch_to.window(handle)
+                return
         return
 
     # Wait for Function
