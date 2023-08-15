@@ -22,6 +22,7 @@ class basics:
         self.driver.set_window_position(-1000, 0)
         self.driver.maximize_window()
         self.logIn()
+        self.changeLang("en")
     
     # Destructor
     def __del__(self):
@@ -40,14 +41,34 @@ class basics:
             if cont == "y": return
             if cont == "n": self.quit(); print("Ended session early.")
 
+    # Changing the language
+    def changeLang (self, lang):
+        if lang.lower() == "en": lang = "en_US"; self.SDL = True
+        else: lang = lang.lower(); self.SDL = False
+        self.goTo("personal.settings")
+        self.waitFor("ID", "metadataLang")
+        Select(self.driver.find_element(By.ID, "metadataLang")).select_by_value(lang)
+        self.clickOn("CLASS_NAME", "saveButton")
+        #self.driver.find_element(By.CLASS_NAME, "saveButton").click()
+        self.driver.back()
+        self.driver.back()
+        self.reload()
+        time.sleep(1)
+        #print("Changed language to", lang.upper())
+        return
 
     # Click on an element (Includes waiting for)
     def clickOn(self, by, path):
         by = by.upper()
         self.waitFor(by, path, True)
-        self.driver.find_element(eval("By."+ by), path).click()
+        try:
+            self.driver.find_element(eval("By."+ by), path).click()
+        except:
+            time.sleep(2)
+            self.driver.find_element(eval(f"By.{by}"), path).click()
         return
     
+    # Giving an Error
     def error(self, where, lang, expected, received):
         print(f"ERROR!\n Unexpected result for {where} in {lang}.\n Expected '{expected}' but got '{received}'")
         self.askCont()
@@ -59,26 +80,40 @@ class basics:
         self.waitFor(by, path)
         return self.driver.find_element(eval(f"By.{by}"), path).get_attribute(att)
     
-    # Returning the text of a field
+    # Returning the Text of a Field
     def getText(self, by, path):
         by = by.upper()
         self.waitFor(by, path)
         return self.driver.find_element(eval("By."+by), path).text
     
-    # Going to a page
+    # Returning the title of the page
+    def getTitle(self):
+        print(self.driver.title)
+    
+    # Going to a Page
     def goTo(self, page="llworkspace"):
         location = self.home.replace("llworkspace", page)
         self.driver.get(location)
         return
     
-    # Reloading the page
+    # Logging in
+    def logIn(self):
+        self.waitFor("ID", "otds_username")
+        self.driver.find_element(By.ID, "otds_username").send_keys("Admin")
+        self.driver.find_element(By.ID, "otds_password").send_keys("livelink" + Keys.ENTER)
+        self.waitFor("ID", "browseViewCoreTable")
+        #self.clickOn("ID", "loginbutton")
+        print("Logged in")
+        return
+    
+    # Reloading the Page
     def reload(self):
         time.sleep(0.5)
         self.driver.refresh()
         time.sleep(0.5)
         return
 
-    # Wait for function
+    # Wait for Function
     def waitFor(self, by, element, clickable=False):
         by = by.upper()
         if clickable:
@@ -105,32 +140,15 @@ class basics:
             if confirm != "": self.driver.quit()
             return
     
-    # Logging in
-    def logIn(self):
-        self.waitFor("ID", "otds_username")
-        self.driver.find_element(By.ID, "otds_username").send_keys("Admin")
-        self.driver.find_element(By.ID, "otds_password").send_keys("livelink" + Keys.ENTER)
-        self.waitFor("ID", "browseViewCoreTable")
-        #self.clickOn("ID", "loginbutton")
-        print("Logged in")
-        return
-
-    # Changing the language
-    def changeLang (self, lang):
-        if lang.lower() == "en": lang = "en_US"; self.SDL = True
-        else: lang = lang.lower(); self.SDL = False
-        self.goTo("personal.settings")
-        self.waitFor("ID", "metadataLang")
-        Select(self.driver.find_element(By.ID, "metadataLang")).select_by_value(lang)
-        self.clickOn("CLASS_NAME", "saveButton")
-        #self.driver.find_element(By.CLASS_NAME, "saveButton").click()
-        self.driver.back()
-        self.driver.back()
-        self.reload()
-        time.sleep(1)
-        print("Changed language to", lang.upper())
-        return
-    
-    # Returning the title of the page
-    def getTitle(self):
-        print(self.driver.title)
+    # Waiting for an Element to Disappear
+    def waitForDisappear(self, by, path):
+        by = by.upper()
+        try:
+            wait =  WebDriverWait(self.driver, 20).until(
+                EC.invisibility_of_element(eval(f"By.{by}"), path)
+                )
+            return
+        except:
+            print(f"Either {by} of {path} not detected, or it didn't disappear.")
+            self.askCont()
+            return

@@ -182,8 +182,8 @@ class businessWorkspace(basics):
         num = str(num)
 
         # Starting in the right language
-        if inSDL: self.changeLang("en")
-        else: self.changeLang("fr")
+        if inSDL and not self.SDL: self.changeLang("en")
+        if not inSDL and self.SDL: self.changeLang("fr")
 
         # Navigating to the folder
         self.driver.get(self.smartHome)
@@ -217,7 +217,7 @@ class businessWorkspace(basics):
         if self.SDL: self.driver.find_element(By.ID, "alpaca6").send_keys(f"EN {num}")
         else: self.driver.find_element(By.ID, "alpaca6").send_keys(f"FR {num}")
         self.clickOn("id", "alpaca8")
-        self.driver.find_element(By.ID, "alpaca8").send_keys(Keys.DOWN + Keys.DOWN + Keys.DOWN + Keys.ENTER)
+        self.driver.find_element(By.ID, "alpaca8").send_keys(Keys.DOWN + Keys.DOWN + Keys.DOWN + Keys.DOWN + Keys.ENTER)
         self.driver.find_element(By.ID, "alpaca10").send_keys("TML" + Keys.ENTER + "Not multilingual")
 
         # Saving the Workspace
@@ -234,9 +234,8 @@ class businessWorkspace(basics):
         # Examining the Results
 
         # SDL First
-        self.changeLang('en')
+        if not self.SDL: self.changeLang('en')
         
-        time.sleep(5)
         # Name
         val = self.getText("xpath", "(//span[contains(@title, 'click to edit')])[1]")
         if nameSDL:
@@ -262,6 +261,7 @@ class businessWorkspace(basics):
 
         # Text Multiline
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[13]")
+        val = val.strip()
         if val != "TML\nNot multilingual":
             self.error("Text Multiline", "SDL", "TML\nNot multilingual", val)
 
@@ -280,8 +280,8 @@ class businessWorkspace(basics):
         # Text Field
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[11]")
         if inSDL:
-            if val != f"EN {num}":
-                self.error("Text Field", "UDL", f"EN {num}", val)
+            if val != "Add value":
+                self.error("Text Field", "UDL", "Add value", val)
         else:
             if val != f"FR {num}":
                 self.error("Text Field", "UDL", f"FR {num}", val)
@@ -293,6 +293,7 @@ class businessWorkspace(basics):
 
         # Text Multiline
         val = self.getText("xpath", "(//div[@class = 'btn-container'])[13]")
+        val = val.strip()
         if val != "TML\nNot multilingual":
             self.error("Text Multiline", "UDL", "TML\nNot multilingual", val)
 
@@ -301,3 +302,4 @@ class businessWorkspace(basics):
         if pause:
             self.askCont()
         return
+
