@@ -28,6 +28,9 @@ class businessWorkspace(basics):
         self.driver.find_element(By.NAME, "_1_1_3_Dest_pp").clear()
         self.driver.find_element(By.NAME, "_1_1_3_Dest_pp").send_keys("un" + Keys.RETURN + "deux" + Keys.RETURN + "trois")
         self.clickOn("id", "btnSave")
+
+        # Printing out a Success Message
+        print("Workspace Multilingualized.")
         return
     
 
@@ -88,9 +91,13 @@ class businessWorkspace(basics):
         # Saving the Changes
         self.clickOn("id", "FORM_SAVE")
 
+        # Printing out a 'Done' Message
+        print("Workspace is prepared for Workflow creation.")
+        return
 
 
-    # Creating a workspace in Classic View
+
+    # Creating a Workspace in Classic View
     def classicBW(self, num, inSDL, nameSDL, nameUDL, attSDL, attUDL, pause):
         # Ensuring num is a string
         num = str(num)
@@ -464,4 +471,108 @@ class businessWorkspace(basics):
         print(f"Search Query for {searchTerm} passed.")
         if pause:
             self.askCont()
+        return
+    
+
+
+    # Creating a Workflow which Creates Workspaces
+    def createWorkflowForBW(self):
+
+        # Setting Language to SDL
+        if not self.SDL: self.changeLang("en")
+
+        # Going to the Folder
+        self.goTo()
+        self.clickOn("link_text", "Other Items")
+        self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
+
+        # Creating the Workflow
+        self.clickOn("link_text", "Add Item")
+        self.clickOn("link_text", "Workflow Map")
+
+        # Giving the Basic Information
+        self.driver.find_element(By.ID, "name").send_keys("BW WF")
+        self.driver.find_element(By.ID, "comment").send_keys(f"BW WF{Keys.ENTER}Description")
+        self.clickOn("id", "addButton")
+
+        # Getting into editing the Workflow
+        self.clickOn("xpath", "//a[@title='Function menu for BW WF']")
+        self.clickOn("link_text", "Edit")
+
+
+        # Giving all the Values
+
+        # General
+        self.clickOn("link_text", "Map")
+        self.clickOn("link_text", "General")
+        self.driver.find_element(By.ID, "Description").send_keys(f"BW WF{Keys.ENTER}Description")
+        self.clickOn("id", "InitMsg2")
+        self.driver.find_element(By.ID, "CustomMsg").send_keys(f"BW WF{Keys.ENTER}Custom Message")
+        self.clickOn("class_name", "saveButton")
+
+        # Attributes
+        self.clickOn("link_text", "Map")
+        self.clickOn("link_text", "Attributes")
+        self.clickOn("id", "1MSelectTitle")
+        self.clickOn("link_text", "Text: Field")
+        self.driver.find_element(By.ID, "AttrDisplayName").send_keys("tf")
+        self.clickOn("class_name", "saveButton")
+        self.clickOn("id", "1MSelectTitle")
+        self.clickOn("link_text", "Text: Popup")
+        self.driver.find_element(By.ID, "AttrDisplayName").send_keys("tp")
+        self.driver.find_element(By.ID, "validValues").send_keys(f"one{Keys.ENTER}two{Keys.ENTER}three")
+        self.clickOn("class_name", "saveButton")
+        self.clickOn("id", "1MSelectTitle")
+        self.clickOn("link_text", "Text: Field")
+        self.driver.find_element(By.ID, "AttrDisplayName").send_keys("tml")
+        self.clickOn("class_name", "saveButton")
+        time.sleep(0.5)
+        self.clickOn("class_name", "saveButton")
+
+        # Multilingualizing the Attributes
+        self.clickOn("link_text", "Map")
+        self.clickOn("link_text", "Attribute Translation")
+        Select(self.driver.find_element(By.ID, "editMLDestLang")).select_by_value("fr")
+        self.clickOn("id", "_1_1_2")
+        self.clickOn("id", "_1_1_3")
+        self.driver.find_element(By.XPATH, "//input[@name='_1_1_2_Dest']").send_keys("TF FR")
+        self.driver.find_element(By.XPATH, "//input[@name='_1_1_4_Dest']").send_keys("TML FR")
+        self.clickOn("xpath", "//input[@name='radTransType' and @value='1']")
+        self.driver.find_element(By.XPATH, "//textarea[@name='_1_1_3_Dest_pp']").clear()
+        self.driver.find_element(By.XPATH, "//textarea[@name='_1_1_3_Dest_pp']").send_keys(f"un{Keys.ENTER}deux{Keys.ENTER}trois")
+        self.clickOn("id", "btnSave")
+        
+        # Starting the Workflow in Classic View
+        self.clickOn("link_text", "BW WF")
+
+
+        # Adding the "Create Business Workspace" Step to the Workflow
+        #self.dragAndDropCoordinates(-1500, 750)
+        x,y = self.getCoordinates(self.driver.find_element(By.XPATH, "(//*[@id='graphContainer']/div[2]/div/div/a[8]"))
+        self.dragAndDropCoordinates(x, y, 400, 500)
+
+        self.askCont()
+
+        self.clickOn("xpath", "//*[@id='graphContainer']/div[4]/svg/g/g[3]/g")
+        self.askCont()
+        self.clickOn("xpath", "//*[@id='graphContainer']/div[4]/svg/g/g[3]/g")
+
+        #self.clickAtCoordinates(275, 300, True)
+
+        #self.actions.context_click().perform()
+        self.askCont()
+
+        self.clickOn("id", "InitiateInSmartView")
+        self.clickOn("class_name", "saveButton")
+        time.sleep(1)
+        self.clickOn("link_text", "BW WF")
+
+        
+
+
+
+
+
+
+
         return

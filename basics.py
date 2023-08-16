@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
 import time
 
 #from bw import classicBW
@@ -21,6 +22,7 @@ class basics:
         self.driver.get(self.home)
         self.driver.set_window_position(-1000, 0)
         self.driver.maximize_window()
+        self.actions = ActionChains(self.driver)
         self.logIn()
         self.changeLang("en")
     
@@ -66,6 +68,20 @@ class basics:
             self.driver.find_element(eval(f"By.{by}"), path).click()
         return
     
+    # Click on Coordinates
+    def clickAtCoordinates(self, x, y, doubleClick=False):
+        self.waitFor("tag_name", "body")
+        self.actions.move_to_element_with_offset(self.driver.find_element(By.TAG_NAME, "body"), 0, 0).perform()
+        if doubleClick: self.actions.move_by_offset(x, y).double_click().perform()
+        else: self.actions.move_by_offset(x, y).click().perform()
+        return
+
+    # Drag and Drop by Coordinates
+    def dragAndDropCoordinates(self, x1, y1, x2, y2):
+        self.actions.move_to_element_with_offset(self.driver.find_element(By.TAG_NAME, "body"), x1, y1).perform()
+        self.actions.click_and_hold().move_by_offset(x2-x1, y2-y1).pause(0.25).release()
+        return
+
     # Giving an Error
     def error(self, where, lang, expected, received):
         print(f"ERROR!\n Unexpected result for {where} in {lang}.\n Expected '{expected}' but got '{received}'")
@@ -77,6 +93,11 @@ class basics:
         by = by.upper()
         self.waitFor(by, path)
         return self.driver.find_element(eval(f"By.{by}"), path).get_attribute(att)
+    
+    # Get Coordinates of an element
+    def getCoordinates(self, element):
+        coordinates = element.location
+        return [coordinates.x, coordinates.y]
     
     # Returning the Text of a Field
     def getText(self, by, path):
