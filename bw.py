@@ -10,6 +10,10 @@ class businessWorkspace(basics):
 
     # Multilingualizing the Workspace
     def multilingualizeWorkspace(self):
+
+        # Going to SDL
+        if not self.SDL: self.changeLang("en")
+
         # Going to the Categories Page
         self.goTo("ll&objType=133&objAction=browse")
 
@@ -39,7 +43,7 @@ class businessWorkspace(basics):
     def prepareForWorkflow(self):
 
         # Going to SDL
-        if self.SDL == False: self.changeLang("en")
+        if not self.SDL: self.changeLang("en")
 
         # Going to the Workspaces Page
         self.goTo("ll&objType=862&objAction=browse")
@@ -112,8 +116,10 @@ class businessWorkspace(basics):
             self.goTo()
             self.clickOn("link_text", "Autres éléments")
         self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
-        self.clickOn("id", "addItemMenu0Head")
-        self.clickOn("id", "menuItem_848")
+
+        # 
+        self.clickOn("link_text", "Add Item")
+        self.clickOn("link_text", "Business Workspace")
 
         # Making the number a two-digit code (01-99) for easier sorting due to alphabetizing
         if int(num) < 10:
@@ -248,7 +254,7 @@ class businessWorkspace(basics):
 
         # Starting in the right language
         if inSDL and not self.SDL: self.changeLang("en")
-        if not inSDL and self.SDL: self.changeLang("fr")
+        elif not inSDL and self.SDL: self.changeLang("fr")
 
         # Navigating to the folder
         self.driver.get(self.smartHome)
@@ -371,12 +377,12 @@ class businessWorkspace(basics):
 
 
 
-    # Creating a Poll
+    # Creating a Search Query
     def searchQuery(self, inSDL, searchTerm, pause):
 
         # Starting in the Correct Language
         if inSDL and not self.SDL: self.changeLang("en")
-        if not inSDL and self.SDL: self.changeLang("fr")
+        elif not inSDL and self.SDL: self.changeLang("fr")
 
         # Creating the Search
         self.goTo("ll&objType=258&objAction=searchprompt")
@@ -523,7 +529,7 @@ class businessWorkspace(basics):
         self.driver.find_element(By.ID, "validValues").send_keys(f"one{Keys.ENTER}two{Keys.ENTER}three")
         self.clickOn("class_name", "saveButton")
         self.clickOn("id", "1MSelectTitle")
-        self.clickOn("link_text", "Text: Field")
+        self.clickOn("link_text", "Text: MultiLine")
         self.driver.find_element(By.ID, "AttrDisplayName").send_keys("tml")
         self.clickOn("class_name", "saveButton")
         time.sleep(0.5)
@@ -559,3 +565,108 @@ class businessWorkspace(basics):
         return
 
 
+
+    # Creating a Business Workspace Via a Workflow
+    def createBWWF(self, num, inSDL, pause):
+        
+        # Getting to the Correct Language
+        if inSDL and not self.SDL: self.changeLang("en")
+        elif not inSDL and self.SDL: self.changeLang("fr")
+
+        # Getting into the Business Workspaces Folder
+        if inSDL:
+            self.goTo()
+            self.clickOn("link_text", "Other Items")
+        else:
+            self.goTo()
+            self.clickOn("link_text", "Autres éléments")
+        self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
+
+        # Initiating the Workflow
+        self.clickOn("link_text", "BW WF")
+
+        # Giving the Workflow (and subsequently the Workspace) Attributes
+        self.switchIframe("//iframe[@id='iframeLeft']")
+        self.clickOn("link_text", "Attributes")
+        self.switchIframe()
+        self.switchIframe("//iframe[@id='iframeRight']")
+
+        # Text Field (Multilingual)
+        self.clickOn("id", "_1_1_2_1Global")
+        self.driver.find_element(By.ID, "mle__1_1_2_1_en_US").send_keys(f"WF EN {num}")
+        self.driver.find_element(By.ID, "mle__1_1_2_1_fr").send_keys(f"WF FR {num}")
+        self.clickOn("id", "mlEditBtnSave")
+
+        # Text Popup
+        Select(self.driver.find_element(By.ID, "_1_1_3_1")).select_by_index(3)
+
+        # Text Multiline
+        self.driver.find_element(By.ID, "_1_1_4_1").send_keys(f"TML{Keys.ENTER}Not multilingual")
+
+        # Saving and Initiating
+        self.clickOn("class_name", "applyButton")
+        self.switchIframe()
+        self.switchIframe("//iframe[@id='iframeLeft']")
+        self.clickOn("class_name", "saveButton")
+        self.switchIframe()
+        self.clickOn("xpath", "//input[@name='processButton']")
+
+
+        # Checking the Workspace Attributes
+
+        # Starting in SDL
+        if not self.SDL: self.changeLang("en")
+
+        # Clicking into the Workspace
+        self.clickOn("link_text", f"BW WF EN {num}")
+
+        # Name
+        val = self.getText("id", "otsapwkspPanel_panelTitle")
+        if val != f"BW WF EN {num}":
+            self.error("BW Name (WF Creation)", "SDL", f"BW WF EN {num}", val)
+        
+        # Text Field
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[1]")[2:-1]
+        if val != f"WF EN {num}":
+            self.error("Text Field", "SDL", f"WF EN {num}", val)
+        
+        # Text Popup
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[2]")[2:-1]
+        if val != "three":
+            self.error("Text Popup", "SDL", "three", val)
+        
+        # Text Multiline
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[3]")[2:-1]
+        if val != "TML Not multilingual":
+            self.error("Text Multiline", "SDL", "TML Not multilingual", val)
+
+        # Switching to UDL Check
+        self.changeLang("fr")
+
+        # Name
+        val = self.getText("id", "otsapwkspPanel_panelTitle")
+        if val != f"BW WF FR {num}":
+            self.error("BW Name (WF Creation)", "SDL", f"BW WF FR {num}", val)
+        
+        # Text Field
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[1]")[2:-1]
+        if val != f"WF FR {num}":
+            self.error("Text Field", "SDL", f"WF FR {num}", val)
+        
+        # Text Popup
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[2]")[2:-1]
+        if val != "trois":
+            self.error("Text Popup", "SDL", "trois", val)
+        
+        # Text Multiline
+        val = self.getText("xpath", "(//div[@class='xecmsap_attribute_value'])[3]")[2:-1]
+        if val != "TML Not multilingual":
+            self.error("Text Multiline", "SDL", "TML Not multilingual", val)
+
+
+        # Finishing Up
+        self.changeLang("en")
+        print(f"BW WF {num} passed.")
+        if pause:
+            self.askCont()
+        return

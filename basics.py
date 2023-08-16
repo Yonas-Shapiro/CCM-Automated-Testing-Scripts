@@ -139,13 +139,20 @@ class basics:
     def okAlert(self):
         WebDriverWait(self.driver, 10).until(EC.alert_is_present())
         self.driver.switch_to.alert.accept()
-        self.switchWindow()
     
     # Reloading the Page
     def reload(self):
         time.sleep(0.5)
         self.driver.refresh()
         time.sleep(0.5)
+        return
+    
+    # Switch iFrame
+    def switchIframe(self, path=None):
+        if not path:
+            self.driver.switch_to.default_content()
+            return
+        self.driver.switch_to.frame(self.driver.find_element(By.XPATH, path))
         return
     
     # Switch Window Focus
