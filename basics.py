@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.alert import Alert
 import time
 
 #from bw import classicBW
@@ -56,6 +57,21 @@ class basics:
         time.sleep(1)
         #print("Changed language to", lang.upper())
         return
+    
+    # Click on Coordinates
+    def clickAtCoordinates(self, x, y, doubleClick=False):
+        self.waitFor("tag_name", "body")
+        self.actions.move_to_element_with_offset(self.driver.find_element(By.TAG_NAME, "body"), 0, 0).perform()
+        if doubleClick: self.actions.move_by_offset(x, y).double_click().perform()
+        else: self.actions.move_by_offset(x, y).click().perform()
+        return
+    
+    # Click and Hold Between Two Elements
+    def clickAndHold(self, element1, element2, by1='css_selector', by2='css_selector'):
+        by1 = by1.upper(); by2 = by2.upper()
+        self.actions.move_to_element(self.driver.find_element(eval(f"By.{by1}"), element1)).perform()
+        self.actions.move_to_element(self.driver.find_element(eval(f"By.{by2}"), element2)).click_and_hold().perform()
+        return
 
     # Click on an element (Includes waiting for)
     def clickOn(self, by, path):
@@ -68,13 +84,7 @@ class basics:
             self.driver.find_element(eval(f"By.{by}"), path).click()
         return
     
-    # Click on Coordinates
-    def clickAtCoordinates(self, x, y, doubleClick=False):
-        self.waitFor("tag_name", "body")
-        self.actions.move_to_element_with_offset(self.driver.find_element(By.TAG_NAME, "body"), 0, 0).perform()
-        if doubleClick: self.actions.move_by_offset(x, y).double_click().perform()
-        else: self.actions.move_by_offset(x, y).click().perform()
-        return
+
 
     # Drag and Drop by Coordinates
     def dragAndDropCoordinates(self, x1, y1, x2, y2):
@@ -124,6 +134,12 @@ class basics:
         #self.clickOn("ID", "loginbutton")
         print("Logged in")
         return
+    
+    # Press 'OK' on an Alert
+    def okAlert(self):
+        WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+        self.driver.switch_to.alert.accept()
+        self.switchWindow()
     
     # Reloading the Page
     def reload(self):

@@ -541,38 +541,21 @@ class businessWorkspace(basics):
         self.driver.find_element(By.XPATH, "//textarea[@name='_1_1_3_Dest_pp']").clear()
         self.driver.find_element(By.XPATH, "//textarea[@name='_1_1_3_Dest_pp']").send_keys(f"un{Keys.ENTER}deux{Keys.ENTER}trois")
         self.clickOn("id", "btnSave")
-        
-        # Starting the Workflow in Classic View
         self.clickOn("link_text", "BW WF")
 
-
-        # Adding the "Create Business Workspace" Step to the Workflow
-        #self.dragAndDropCoordinates(-1500, 750)
-        x,y = self.getCoordinates(self.driver.find_element(By.XPATH, "(//*[@id='graphContainer']/div[2]/div/div/a[8]"))
-        self.dragAndDropCoordinates(x, y, 400, 500)
-
+        # Asking User to Finish Creating the Workflow.
+        print("Please finish creating the workflow.")
+        print("To do this, create a 'Create Workspace' step, fill in the necessary information and edit the workflow to initiate in classic view.")
         self.askCont()
 
-        self.clickOn("xpath", "//*[@id='graphContainer']/div[4]/svg/g/g[3]/g")
-        self.askCont()
-        self.clickOn("xpath", "//*[@id='graphContainer']/div[4]/svg/g/g[3]/g")
 
-        #self.clickAtCoordinates(275, 300, True)
+        # Ensuring the Map is Saved
+        self.clickOn("link_text", "Map")
+        self.clickOn("link_text", "Save")
+        self.okAlert()
 
-        #self.actions.context_click().perform()
-        self.askCont()
-
-        self.clickOn("id", "InitiateInSmartView")
-        self.clickOn("class_name", "saveButton")
-        time.sleep(1)
-        self.clickOn("link_text", "BW WF")
-
-        
-
-
-
-
-
-
-
+        # Return with Success Message
+        print("Workflow for Business Workspace creation created.")
         return
+
+
