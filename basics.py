@@ -147,6 +147,16 @@ class basics:
         time.sleep(0.5)
         return
     
+    # 'Clicking' on a SV Folder
+    def svFolderClick(self, name):
+        self.goTo(self.driver.get(self.getAtt("xpath", f"//a[@title='{name}']", "href")))
+        return
+    
+    # Getting into the Metadata of an Item in Smart View
+    def svMetadata(self, name):
+        self.goTo(self.driver.get(self.getAtt("xpath", f"//a[@title='{name}']", "href")) + "/metadata")
+        return
+
     # Switch iFrame
     def switchIframe(self, path=None):
         if not path:

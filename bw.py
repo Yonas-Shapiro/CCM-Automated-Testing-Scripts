@@ -1,7 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.common.action_chains import ActionChains
 import time
 
 from basics import basics
@@ -20,8 +19,11 @@ class businessWorkspace(basics):
 
         # Getting Smart BW Folder URL
         self.goTo(self.smartHome)
-        self.driver.get(self.getAtt("xpath", "//a[@title='Other Items']", "href"))
+        self.svFolderClick("Other Items")
         self.smartBWFolder = self.getAtt("xpath", "//a[@title='Business Workspaces']", "href")
+
+
+
 
     # Multilingualizing the Workspace
     def multilingualizeWorkspace(self):
@@ -52,6 +54,7 @@ class businessWorkspace(basics):
         print("Workspace Multilingualized.")
         return
     
+
 
 
     # Setting the Workspace up for Creation in Workflows
@@ -113,6 +116,7 @@ class businessWorkspace(basics):
         # Printing out a 'Done' Message
         print("Workspace is prepared for Workflow creation.")
         return
+
 
 
 
@@ -258,6 +262,7 @@ class businessWorkspace(basics):
     
 
 
+
     # Creating a Business Workspace in Smart View
     def smartBW(self, num, inSDL, nameSDL, nameUDL, pause):
         # Ensuring num is a string
@@ -302,7 +307,7 @@ class businessWorkspace(basics):
         # Opening the Properties Tab
         if (inSDL and nameSDL) or (not inSDL and not nameUDL): lang = 'EN'; 
         else: lang = 'FR'
-        self.driver.get(self.getAtt("xpath", f"//a[@title='BW {num} {lang}']", "href") + "/metadata")
+        self.svMetadata(f"BW {num} {lang}")
 
 
         # Examining the Results
@@ -484,6 +489,7 @@ class businessWorkspace(basics):
     
 
 
+
     # Creating a Workflow which Creates Workspaces
     def createWorkflowForBW(self):
 
@@ -564,6 +570,7 @@ class businessWorkspace(basics):
         # Return with Success Message
         print("Workflow for Business Workspace creation created.")
         return
+
 
 
 
