@@ -8,6 +8,21 @@ from basics import basics
 
 class businessWorkspace(basics):
 
+    # Init to get Basic Information (Optimization)
+    def __init__(self, VMnum):
+        basics.__init__(VMnum)
+
+        # Getting Classic BW Folder URL
+        self.goTo()
+        self.clickOn("link_text", "Other Items")
+        self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
+        self.classicBWFolder = self.driver.current_url
+
+        # Getting Smart BW Folder URL
+        self.goTo(self.smartHome)
+        self.driver.get(self.getAtt("xpath", "//a[@title='Other Items']", "href"))
+        self.smartBWFolder = self.getAtt("xpath", "//a[@title='Business Workspaces']", "href")
+
     # Multilingualizing the Workspace
     def multilingualizeWorkspace(self):
 
@@ -107,17 +122,11 @@ class businessWorkspace(basics):
         num = str(num)
 
         # Starting in the correct language and then navigating to the BW folder
-        if inSDL:
-            self.changeLang("en")
-            self.goTo()
-            self.clickOn("link_text", "Other Items")
-        else:
-            self.changeLang("fr")
-            self.goTo()
-            self.clickOn("link_text", "Autres éléments")
-        self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
+        if inSDL and not self.SDL: self.changeLang("en")
+        elif not inSDL and self.SDL: self.changeLang("fr")
+        self.goTo(self.classicBWFolder)
 
-        # 
+        # Creating the Workspace
         self.clickOn("link_text", "Add Item")
         self.clickOn("link_text", "Business Workspace")
 
@@ -176,7 +185,9 @@ class businessWorkspace(basics):
         # Ensuring proper values are displayed
         self.clickOn("xpath", "//*[@value='Continue']")
         time.sleep(1)
-        self.changeLang("en")
+
+        # Checking SDL First
+        if not self.SDL: self.changeLang("en")
 
         # Checking the name
         val = self.getText("id", "otsapwkspPanel_panelTitle")
@@ -257,13 +268,7 @@ class businessWorkspace(basics):
         elif not inSDL and self.SDL: self.changeLang("fr")
 
         # Navigating to the folder
-        self.driver.get(self.smartHome)
-        if self.SDL:
-            self.driver.get(self.getAtt("xpath", "//a[@title='Other Items']", "href"))
-            self.driver.get(self.getAtt("xpath", "//a[@title='Business Workspaces']", "href"))
-        else:
-            self.driver.get(self.getAtt("xpath", "//a[@title='Autres éléments']", "href"))
-            self.driver.get(self.getAtt("xpath", "//a[@title='Business Workspaces']", "href"))
+        self.driver.get(self.smartBWFolder)
 
         # Creating the Workspace
         self.clickOn("xpath", "//a[@title='Add item']")
@@ -295,12 +300,10 @@ class businessWorkspace(basics):
         self.clickOn("id", "okButton")
 
         # Opening the Properties Tab
-        if (inSDL and nameSDL) or (not inSDL and not nameUDL):
-            self.driver.get(self.getAtt("xpath", f"//a[@title='BW {num} EN']", "href"))
-        else:
-            self.driver.get(self.getAtt("xpath", f"//a[@title='BW {num} FR']", "href"))
-        self.clickOn("xpath", "//span[@title='Show more']")
-        self.clickOn("link_text", "Properties")
+        if (inSDL and nameSDL) or (not inSDL and not nameUDL): lang = 'EN'; 
+        else: lang = 'FR'
+        self.driver.get(self.getAtt("xpath", f"//a[@title='BW {num} {lang}']", "href") + "/metadata")
+
 
         # Examining the Results
 
@@ -488,9 +491,7 @@ class businessWorkspace(basics):
         if not self.SDL: self.changeLang("en")
 
         # Going to the Folder
-        self.goTo()
-        self.clickOn("link_text", "Other Items")
-        self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
+        self.goTo(self.classicBWFolder)
 
         # Creating the Workflow
         self.clickOn("link_text", "Add Item")
@@ -574,13 +575,7 @@ class businessWorkspace(basics):
         elif not inSDL and self.SDL: self.changeLang("fr")
 
         # Getting into the Business Workspaces Folder
-        if inSDL:
-            self.goTo()
-            self.clickOn("link_text", "Other Items")
-        else:
-            self.goTo()
-            self.clickOn("link_text", "Autres éléments")
-        self.clickOn("xpath", "//a[@class='browseItemNameContainer' and contains (@id, 'node')]")
+        self.goTo(self.classicBWFolder)
 
         # Initiating the Workflow
         self.clickOn("link_text", "BW WF")
