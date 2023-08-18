@@ -9,7 +9,7 @@ class businessWorkspace(basics):
 
     # Init to get Basic Information (Optimization)
     def __init__(self, VMnum):
-        basics.__init__(VMnum)
+        super().__init__(VMnum)
 
         # Getting Classic BW Folder URL
         self.goTo()
