@@ -29,7 +29,7 @@ class basics:
     
     # Destructor
     def __del__(self):
-        self.driver.close()
+        self.driver.quit()
         print("This session has ended")
 
 
@@ -40,7 +40,8 @@ class basics:
             print("Would you like to continue? (y/n)")
             cont = input().lower()
             if cont == "y": return
-            if cont == "n": self.__del__()
+            if cont == "n": self.__del__(); return
+
 
     # Changing the language
     def changeLang (self, lang):
@@ -58,6 +59,7 @@ class basics:
         #print("Changed language to", lang.upper())
         return
     
+    
     # Click on Coordinates
     def clickAtCoordinates(self, x, y, doubleClick=False):
         self.waitFor("tag_name", "body")
@@ -66,12 +68,14 @@ class basics:
         else: self.actions.move_by_offset(x, y).click().perform()
         return
     
+
     # Click and Hold Between Two Elements
     def clickAndHold(self, element1, element2, by1='css_selector', by2='css_selector'):
         by1 = by1.upper(); by2 = by2.upper()
         self.actions.move_to_element(self.driver.find_element(eval(f"By.{by1}"), element1)).perform()
         self.actions.move_to_element(self.driver.find_element(eval(f"By.{by2}"), element2)).click_and_hold().perform()
         return
+
 
     # Click on an element (Includes waiting for)
     def clickOn(self, by, path):
@@ -85,12 +89,12 @@ class basics:
         return
     
 
-
     # Drag and Drop by Coordinates
     def dragAndDropCoordinates(self, x1, y1, x2, y2):
         self.actions.move_to_element_with_offset(self.driver.find_element(By.TAG_NAME, "body"), x1, y1).perform()
         self.actions.click_and_hold().move_by_offset(x2-x1, y2-y1).pause(0.25).release()
         return
+
 
     # Giving an Error
     def error(self, where, lang, expected, received):
@@ -98,33 +102,39 @@ class basics:
         self.askCont()
         return
     
+
     # Getting an Attribute of an Element
     def getAtt(self, by, path, att):
         by = by.upper()
         self.waitFor(by, path)
         return self.driver.find_element(eval(f"By.{by}"), path).get_attribute(att)
     
+
     # Get Coordinates of an element
     def getCoordinates(self, element):
         coordinates = element.location
         return [coordinates.x, coordinates.y]
     
+
     # Returning the Text of a Field
     def getText(self, by, path):
         by = by.upper()
         self.waitFor(by, path)
         return self.driver.find_element(eval("By."+by), path).text
     
+
     # Returning the title of the page
     def getTitle(self):
         print(self.driver.title)
     
+
     # Going to a Page
     def goTo(self, page="llworkspace"):
         location = self.home.replace("llworkspace", page)
         self.driver.get(location)
         return
     
+
     # Logging in
     def logIn(self):
         self.waitFor("ID", "otds_username")
@@ -135,11 +145,13 @@ class basics:
         print("Logged in")
         return
     
+
     # Press 'OK' on an Alert
     def okAlert(self):
         WebDriverWait(self.driver, 10).until(EC.alert_is_present())
         self.driver.switch_to.alert.accept()
     
+
     # Reloading the Page
     def reload(self):
         time.sleep(0.5)
@@ -147,15 +159,18 @@ class basics:
         time.sleep(0.5)
         return
     
+
     # 'Clicking' on a SV Folder
     def svFolderClick(self, name):
-        self.goTo(self.driver.get(self.getAtt("xpath", f"//a[@title='{name}']", "href")))
+        self.driver.get(self.getAtt("xpath", f"//a[@title='{name}']", "href"))
         return
     
+
     # Getting into the Metadata of an Item in Smart View
     def svMetadata(self, name):
-        self.goTo(self.driver.get(self.getAtt("xpath", f"//a[@title='{name}']", "href")) + "/metadata")
+        self.driver.get(self.getAtt("xpath", f"//a[@title='{name}']", "href") + "/metadata")
         return
+
 
     # Switch iFrame
     def switchIframe(self, path=None):
@@ -165,6 +180,7 @@ class basics:
         self.driver.switch_to.frame(self.driver.find_element(By.XPATH, path))
         return
     
+
     # Switch Window Focus
     def switchWindow(self, anchored):
         if anchored: currentHandle = self.driver.current_window_handle
@@ -174,6 +190,7 @@ class basics:
                 self.driver.switch_to.window(handle)
                 return
         return
+    
 
     # Wait for Function
     def waitFor(self, by, element, clickable=False, firstTime=True):
@@ -197,7 +214,7 @@ class basics:
             return
         except:
             if firstTime: 
-                self.reload
+                self.reload()
                 self.waitFor(by, element, False, False)
             print("There seems to have been an error.")
             print(f"Looking for {by} of {element}.")
@@ -205,6 +222,7 @@ class basics:
             if confirm != "": self.driver.quit()
             return
     
+
     # Waiting for an Element to Disappear
     def waitForDisappear(self, by, path):
         by = by.upper()
