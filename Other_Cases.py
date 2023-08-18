@@ -1,6 +1,6 @@
 from bw import businessWorkspace
 
-# Starting up
+# Starting Up
 VMnum = input("Which VM are you running?\n")
 thisSession = businessWorkspace(VMnum)
 
