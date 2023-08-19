@@ -24,7 +24,7 @@ class svTest(basics):
 
 
     # Create a Folder and Give Category Attributes
-    def createFolder(self, num, inSDL, infoSDL, infoUDL, pause):
+    def createFolder(self, num, inSDL, infoSDL, infoUDL):
 
         # Starting in the Right Language
         if inSDL and not self.SDL: self.changeLang("en")
@@ -288,6 +288,43 @@ class svTest(basics):
         
         # Print Passed Message
         print(f"SV-F{num} passed.")
-        if pause:
-            self.askCont()
+        return
+    
+
+
+        
+    # Checking Filters
+    def checkFilters(self, inSDL):
+
+        if inSDL: lang = "EN"
+        else: lang = "FR"
+
+        # Starting in the Correct Language
+        if inSDL and not self.SDL: self.changeLang("en")
+        elif not inSDL and self.SDL: self.changeLang("fr")
+
+        # Opening the Filters
+        self.driver.get(self.standardBasic)
+        self.clickOn("xpath", "//a[@title='Show filters']")
+
+        # Searching for 'Red' or 'Rouge2'
+        if inSDL: self.clickOn("xpath", "(//div[text()='Red'])[1]")
+        else: self.clickOn("xpath", "(//div[text()='Rouge2'])[1]")
+        
+        # Gathering the Results
+        self.waitFor("class_name", "csui-facet-item-facet-name")
+        weirdResults = self.driver.find_elements(By.CLASS_NAME, "csui-table-cell-name-link-text")
+        results = []
+        for result in weirdResults: results.append(result.text)
+
+        # Confirming Expected Values are in the Results
+        if f"SV-F1 {lang}" not in results or f"SV-F4 {lang}" not in results or len(results) != 14:
+            self.error("Filters", lang, "SV-F1, SV-F4 and length of 14", results)
+
+        # Closing the Filters
+        self.clickOn("xpath", "//a[@title='Hide filters']")
+
+        # Print Passed Message
+        if inSDL: print("Filters passed in SDL")
+        else: print("Filters passed in UDL")
         return
