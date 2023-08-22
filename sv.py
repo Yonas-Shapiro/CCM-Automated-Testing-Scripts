@@ -328,3 +328,39 @@ class svTest(basics):
         if inSDL: print("Filters passed in SDL")
         else: print("Filters passed in UDL")
         return
+    
+
+
+
+    # Checking Folder Information (Standard Complex)
+    def checkFolder(self):
+
+        # Switching to UDL
+        if self.SDL: self.changeLang("fr")
+
+        # Navigating to the Folder
+        self.driver.get(self.smartHome)
+        self.svFolderClick("Données de test")
+        self.svMetadata("Standard Complex")
+
+        # Checking the text
+        val = self.getText("xpath", "//*[@id='alpaca15Label']")
+        if val != "Nom du joueur":
+            self.error("Standard Complex", "UDL", "Nom du joueur", val)
+
+        val = self.getText("xpath", "//*[@id='alpaca16Label']")
+        if val != "Couleur du maillot":
+            self.error("Standard Complex", "UDL", "Couleur du maillot", val)
+
+        val = self.getText("xpath", "//*[@id='alpaca17Label']")
+        if val != "Années en ligue":
+            self.error("Standard Complex", "UDL", "Années en ligue", val)
+
+        val = self.getText("xpath", "//*[@id='alpaca18Label']")
+        if val != "Commentaire":
+            self.error("Standard Complex", "UDL", "Commentaire", val)
+
+        
+        # Print Passed Message
+        print("Standard Complex passed.")
+        return
