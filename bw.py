@@ -18,7 +18,7 @@ class businessWorkspace(basics):
         self.classicBWFolder = self.driver.current_url
 
         # Getting Smart BW Folder URL
-        self.goTo(self.smartHome)
+        self.driver.get(self.smartHome)
         self.svFolderClick("Other Items")
         self.smartBWFolder = self.getAtt("xpath", "//a[@title='Business Workspaces']", "href")
 
@@ -128,7 +128,7 @@ class businessWorkspace(basics):
         # Starting in the correct language and then navigating to the BW folder
         if inSDL and not self.SDL: self.changeLang("en")
         elif not inSDL and self.SDL: self.changeLang("fr")
-        self.goTo(self.classicBWFolder)
+        self.driver.get(self.classicBWFolder)
 
         # Creating the Workspace
         self.clickOn("link_text", "Add Item")
@@ -412,13 +412,13 @@ class businessWorkspace(basics):
         self.driver.find_element(By.ID, "name").send_keys(searchName)
 
         # Getting the Correct Location (Enterprise)
-        if self.getText("id", "CTT_Path") != "Enterprise" or "Content Server:Enterprise":
-            self.clickOn("xpath", "//input[@name='CTT_Button']")
-            self.switchWindow(True)
-            self.clickOn("class_name", "selectArrow")
-            self.clickOn("xpath", "(//div[@class='menuItem'])[1]")
-            self.clickOn("xpath", "(//a[@href='#'])[5]")
-            self.switchWindow(False)
+        self.clickOn("xpath", "//input[@name='CTT_Button']")
+        self.switchWindow(True)
+        self.clickOn("class_name", "selectArrow")
+        self.clickOn("xpath", "(//div[@class='menuItem'])[1]")
+        self.clickOn("link_text", "Enterprise")
+        self.clickOn("xpath", "(//a[@href='#'])[2]")
+        self.switchWindow(False)
 
         self.clickOn("id", "addButton")
         # Fixing a Potential Category "<not determined>"
@@ -497,7 +497,7 @@ class businessWorkspace(basics):
         if not self.SDL: self.changeLang("en")
 
         # Going to the Folder
-        self.goTo(self.classicBWFolder)
+        self.driver.get(self.classicBWFolder)
 
         # Creating the Workflow
         self.clickOn("link_text", "Add Item")
@@ -582,7 +582,7 @@ class businessWorkspace(basics):
         elif not inSDL and self.SDL: self.changeLang("fr")
 
         # Getting into the Business Workspaces Folder
-        self.goTo(self.classicBWFolder)
+        self.driver.get(self.classicBWFolder)
 
         # Initiating the Workflow
         self.clickOn("link_text", "BW WF")

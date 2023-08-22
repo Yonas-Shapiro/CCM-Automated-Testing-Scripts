@@ -6,6 +6,7 @@ thisSession = businessWorkspace(VMnum)
 
 f = False; t = True
 
+
 # Business Workspace -> Created in Classic View: Num, inSDL, NameSDL, NameUDL, AttSDL, AttUDL, Pause
 thisSession.multilingualizeWorkspace()
 thisSession.classicBW(1, f, t, t, f, t, f)
@@ -46,6 +47,7 @@ thisSession.askCont()
 # Search Query: inSDL, searchTerm, Pause
 thisSession.searchQuery(t, "Joueur B", f)
 thisSession.searchQuery(f, "Player A", f)
+
 
 # Pausing between Search Query Testing and BW in WF Creation
 thisSession.askCont()
