@@ -95,6 +95,17 @@ class basics:
         self.actions.click_and_hold().move_by_offset(x2-x1, y2-y1).pause(0.25).release()
         return
 
+    # Toggling EMLC
+    def toggleEMLC(self, on):
+        self.goTo("admin.index")
+        self.driver.find_element(By.ID, "filter_Accordion").send_keys("Configure Enhanced Multilingual Capabilities Module")
+        self.clickOn("link_text", "Configure Enhanced Multilingual Capabilities Module")
+        if self.driver.find_element(By.ID, "id_rhemlcenabled").is_selected() == on: return
+        self.clickOn("id", "id_rhemlcenabled")
+        self.clickOn("xpath", "//input[@value='Save Settings']")
+        self.clickOn("id", "restartServerButton")
+        self.waitFor("id", "continueButton", False, True, 500)
+        
 
     # Giving an Error
     def error(self, where, lang, expected, received):
@@ -160,6 +171,16 @@ class basics:
         return
     
 
+    # Replacing Text in a Text: Field
+    def replaceText(self, by, path, getRepl, replacing):
+        by = by.upper()
+        text = self.getText(by, path)
+        newText = text.replace(getRepl, replacing)
+        self.driver.find_element(eval("By." + by), path).clear()
+        self.driver.find_element(eval("By." + by), path).send_keys(newText)
+        return
+    
+
     # 'Clicking' on a SV Folder
     def svFolderClick(self, name):
         self.driver.get(self.getAtt("xpath", f"//a[@title='{name}']", "href"))
@@ -193,11 +214,11 @@ class basics:
     
 
     # Wait for Function
-    def waitFor(self, by, element, clickable=False, firstTime=True):
+    def waitFor(self, by, element, clickable=False, firstTime=True, time = 15):
         by = by.upper()
         if clickable:
             try:
-                wait = WebDriverWait(self.driver, 20).until(
+                wait = WebDriverWait(self.driver, time).until(
                     EC.element_to_be_clickable((eval("By." + by), element))
                 )
                 return
@@ -208,7 +229,7 @@ class basics:
                 if confirm != "": self.driver.quit()
                 return
         try:
-            wait = WebDriverWait(self.driver, 10).until(
+            wait = WebDriverWait(self.driver, time).until(
                 EC.presence_of_element_located((eval("By." + by), element))
             )
             return
