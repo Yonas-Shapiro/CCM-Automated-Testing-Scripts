@@ -6,7 +6,7 @@ thisSession = svTest(VMnum)
 
 f = False; t = True
 
-# Create Folder -> Num, inSDL, infoSDL, infoUDL, Pause
+# Create Folder -> Num, inSDL, infoSDL, infoUDL
 thisSession.createFolder(1, t, t, t)
 thisSession.createFolder(2, t, t, f)
 thisSession.createFolder(3, t, f, t)

@@ -208,7 +208,6 @@ class svTest(basics):
 
         # Date Dropdown
         val = Select(self.driver.find_element(By.ID, "_1_1_3_1")).first_selected_option.text
-        #val = self.getText("id", "_1_1_3_1")
         if val != "11/20/2023":
             self.error("Date Popup", "UDL", "11/20/2023", val)
 
@@ -252,7 +251,6 @@ class svTest(basics):
 
         # Date Dropdown
         val = Select(self.driver.find_element(By.ID, "_1_1_3_1")).first_selected_option.text
-        #val = self.getText("id", "_1_1_3_1")
         if val != "11/20/2023":
             self.error("Date Popup", "SDL", "11/20/2023", val)
 
